@@ -1,8 +1,8 @@
 const jwt = require('jsonwebtoken');
 const UserModel = require('../models/userModels')
 
-exports.generateToken = (username) => {
-    return jwt.sign({ username }, process.env.JWT_KEY, {
+exports.generateToken = (_id) => {
+    return jwt.sign({ _id }, process.env.JWT_KEY, {
         expiresIn: process.env.JWT_EXPIRATION
     })
 }

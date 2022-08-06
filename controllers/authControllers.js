@@ -1,7 +1,8 @@
 const userModels = require('../models/userModels');
 const bcrypt = require("bcrypt");
 const { checkAlphabet, validPhone } = require('../helpers/validator');
-const { generateENG2Username, randomAlphabetName } = require('../helpers/generator');
+const { generateENG2Username, randomAlphabetName, generateToken } = require('../helpers/generator');
+const CryptoJs = require('crypto-js');
 
 
 // User Auth Registration
@@ -13,7 +14,7 @@ exports.userRegister = async (req, res) => {
         }
         const user = await userModels.findOne({ phone })
         if (user) return res.status(200).send({ message: " Username already registered !" });
-        if (!validPhone(phone.toString())) return res.status(404).send({ message: " Invalid phone number !" });
+        if (!validPhone(phone.toString())) return res.status(404).send({ message: "Invalid phone number !" });
         if (checkAlphabet(firstName + lastName)) {
             const username = await generateENG2Username(firstName + "." + lastName)
             const encode = await bcrypt.hash(password.toString(), 10)
@@ -31,23 +32,26 @@ exports.userRegister = async (req, res) => {
         res.status(404).send({ message: error.message });
     }
 }
+
+
+
+
 // User Auth Login
 exports.userLogin = async (req, res) => {
     try {
         const { phone, username, password } = req.body;
-        if (!phone && !username || !password) return res.status(401).send({ message: " Invalid phone or password!" });
+        if (!phone && !username || !password) return res.status(401).send({ message: "Please input login info !" });
 
         const pUser = await userModels.findOne({ phone })
         const uUser = await userModels.findOne({ username })
         if (pUser || uUser && bcrypt.compare(password.toString(), pUser.password || uUser.password)) {
+            const encode = CryptoJs.AES.encrypt(JSON.stringify(generateToken(pUser._id || uUser._id)), process.env.ENCRYPT_KEY).toString()
             res.status(200).send({
-                token: generateToken(pUser._id || uUser._id)
+                authKey: encode
             })
         } else {
-            res.status(401).send({ message: "Invalid phone/username or password!" });
+            res.status(401).send({ message: "Please input valid information !" });
         }
-
-
     } catch (error) {
         res.status(404).send({ message: error.message });
     }
