@@ -2,8 +2,7 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     username: { type: String, required: true, trim: true },
-    firstName: { type: String, required: true, trim: true },
-    lastName: { type: String, required: true, trim: true },
+    name: { type: String, required: true, trim: true },
     image: { type: String, required: true, trim: true },
     role: { type: String, enum: ['admin', 'stuff'], required: true },
     dateOfBirth: { type: Date, required: true },
