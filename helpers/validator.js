@@ -36,8 +36,11 @@ exports.signUpValidator = async (req, res, next) => {
 
         // Phone Number Validation
         if (!this.validPhone(phone.toString())) {
-            res.status(404).send({ message: "Please enter a valid phone number !" });
-        } else {
+           return res.status(404).send({ message: "Please enter a valid phone number !" });
+        } 
+        if(password.length<4){
+           return res.status(404).send({ message: "Password minimum 4 characters !" });
+        }else {
             next()
         }
     } catch (error) {
