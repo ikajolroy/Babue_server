@@ -6,13 +6,15 @@ const { readdirSync } = require('fs')
 const connectDatabase = require('./config/MongoDatabase')
 
 
-// COnfig
+// Configuration
 app.use(express.json())
 app.use(cors())
 dotenv.config()
 connectDatabase()
 
-
+app.get('/', (req,res)=>{
+    res.status(400).send({message:"Dangerous Route !"})
+})
 
 // Route configuration
 readdirSync('./routes').map(x => app.use('/', require("./routes/" + x)));
