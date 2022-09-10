@@ -2,6 +2,7 @@ const userModels = require('../models/userModels');
 const  adminModel=  require('../models/adminModel');
 const CryptoJs = require('crypto-js');
 const { generateToken } = require('../helpers/generator');
+const {sendEmail} = require("../helpers/email");
 
 // User Auth Registration
 exports.userRegister = async (req, res) => {
@@ -13,6 +14,13 @@ exports.userRegister = async (req, res) => {
         const  user  = await userModels.create({ ...userData,email, password: encryptPass })
         const token = generateToken(user._id)
         const encrypt = CryptoJs.AES.encrypt(token, process.env.ENCRYPT_KEY).toString();
+
+        //Send Email
+        const subject = "Registration successfully"
+        const html =`<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"UTF-8\"><meta http-equiv=\"X-UA-Compatible\" content=\"IE=edge\"><meta name=\"viewport\" content=\"width=device-width,initial-scale=1\"><title>Registration Successfully</title></head><body style=\"font-family:Arial,Helvetica,sans-serif\"><center><img width=\"50px\" height=\"50px\" src=\"https://cdn-icons-png.flaticon.com/512/148/148767.png\" alt=\"success\"><h2>Registration Successfully</h2><p>Thanks you <b>${user.name}</b></p><p>As an extra security precaution, please verify your email address to continue our extra service</p></center></body></html>`
+        sendEmail(email,subject,html)
+
+        //Response
         return res.status(201).json({
             token: encrypt
         });
@@ -81,10 +89,11 @@ exports.adminLogin = async (req, res) =>{
         const decode = bytes.toString(CryptoJs.enc.Utf8)
         if (password===decode){
             const {password, _id, __v,...other} = admin._doc
-            res.status(200).send({
-                token:generateToken(admin._id),
-                ...other
-            })
+            const token = generateToken(admin._id)
+            const encrypt = CryptoJs.AES.encrypt(token, process.env.ENCRYPT_KEY).toString();
+            return res.status(200).json({
+                token: encrypt
+            });
         }else{
             res.status(401).send({ message:"Wrong Email or Password !"})
         }
