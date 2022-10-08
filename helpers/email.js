@@ -4,12 +4,12 @@ exports.sendEmail =async (email,subject,message)=>{
     const transport = nodeMailer.createTransport(({
         service:"gmail",
         auth:{
-            user:process.env.EMAIL,
+            user:process.env.SERVICE_EMAIL,
             pass:process.env.EMAIL_PASS
         }
     }))
     const mailOptions = {
-        from:{name: process.env.NAME,address:process.env.EMAIL},
+        from:{name: process.env.BRAND_NAME,address:process.env.SERVICE_EMAIL},
         to:email,
         subject:subject,
         html:message

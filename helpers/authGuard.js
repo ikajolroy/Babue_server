@@ -11,7 +11,7 @@ exports.guardOfUser = async (req, res, next) => {
             const encrypted = req.headers.authorization.split(' ')[1];
             const bytes = CryptoJs.AES.decrypt(encrypted, process.env.ENCRYPT_KEY);
             const token = bytes.toString(CryptoJs.enc.Utf8)
-            const decode = Jwt.verify(token, process.env.JWT_KEY)
+            const decode = Jwt.verify(token, process.env.ENCRYPT_KEY)
 
             // Find exact authenticate user
             const user = await userModels.findById(decode._id)
@@ -31,6 +31,7 @@ exports.guardOfUser = async (req, res, next) => {
 
 //admin guard
 exports.guardOfAdmin=async (req, res, next) => {
+
     if (req.headers.authorization && req.headers.authorization.startsWith('Bearer ')) {
 
         try {
@@ -38,7 +39,7 @@ exports.guardOfAdmin=async (req, res, next) => {
             const encrypted = req.headers.authorization.split(' ')[1];
             const bytes = CryptoJs.AES.decrypt(encrypted, process.env.ENCRYPT_KEY);
             const token = bytes.toString(CryptoJs.enc.Utf8)
-            const decode = Jwt.verify(token, process.env.JWT_KEY)
+            const decode = Jwt.verify(token, process.env.ENCRYPT_KEY)
 
             // Find exact authenticate user
             const admin = await adminModels.findById(decode._id)

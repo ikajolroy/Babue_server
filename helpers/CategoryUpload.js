@@ -1,11 +1,16 @@
 
-const path = require('path');
 const multer = require('multer');
+const fs = require("fs");
+const path = require('path');
 
 module.exports.upload = multer({
     storage: multer.diskStorage({
         destination: (req, file, cb) => {
-            cb(null, "images")
+            const dir = 'assets/category'
+            if (!fs.existsSync(dir)){
+                fs.mkdirSync(dir, { recursive: true });
+            }
+            cb(null, "assets/category")
         },
         filename: (req, file, cb) => {
             cb(null, Date.now() + path.extname(file.originalname));
@@ -13,12 +18,12 @@ module.exports.upload = multer({
 
     }),
     fileFilter: (req, file, cb) => {
-        if (file.mimetype === "image/jpeg" || file.mimetype === "image/jpg" || file.mimetype === "image/png") {
+        if (file.mimetype.split('/')[0]==="image"){
             cb(null, true)
         } else {
             cb(null, false)
         }
     }
     ,
-    limits: 1024 * 1024 * 5
+    limits: 1024 * 1024 * 2
 })
