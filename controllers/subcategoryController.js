@@ -3,24 +3,8 @@ const fs = require("fs")
 
 
 exports.addSubcategory= async (req, res) => {
-
-    if (req.files.length<2){
-        if (req.files[0]){
-            const frontImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files[0].destination+"/"+req.files[0].filename
-            const frontSplit = frontImage&&"assets/subcategory/"+frontImage.split('/').pop();
-            fs.unlinkSync(frontSplit)
-        }
-        if (req.files[1]){
-            const backImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files[1].destination+"/"+req.files[1].filename
-            const backSplit = backImage&&"assets/subcategory/"+backImage.split('/').pop();
-            fs.unlinkSync(backSplit)
-        }
-        return res.status(404).send({ message: "Image not valid please check type/size/length !"})
-    }
-
-    const frontImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files[0].destination+"/"+req.files[0].filename
-    const backImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files[1].destination+"/"+req.files[1].filename
-
+    const frontImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files.front[0].destination+"/"+req.files.front[0].filename
+    const backImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files.back[0].destination+"/"+req.files.back[0].filename
     const frontSplit = frontImage&&"assets/subcategory/"+frontImage.split('/').pop();
     const backSplit = backImage&&"assets/subcategory/"+backImage.split('/').pop();
 
@@ -33,19 +17,15 @@ exports.addSubcategory= async (req, res) => {
         }
 
         await SubcategoryModel.create({category, name, frontImage, backImage, createdBy:req.admin._id});
-        res.status(200).json({message: 'Successfully created !'})
+        return   res.status(200).json({message: 'Successfully created !'})
     }catch (error) {
         res.status(500).json({ message: error.message });
     }
 }
 
 exports.editSubcategory= async (req, res) => {
-    if (req.files.length<2)
-        return res.status(404).send({ message: "Image not valid please check type/size/length !"})
-
-    const frontImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files[0].destination+"/"+req.files[0].filename
-    const backImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files[1].destination+"/"+req.files[1].filename
-
+    const frontImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files.front[0].destination+"/"+req.files.front[0].filename
+    const backImage =req.files&&req.protocol + '://' + req.get('host') + "/" + req.files.back[0].destination+"/"+req.files.back[0].filename
     const frontSplit = frontImage&&"assets/subcategory/"+frontImage.split('/').pop();
     const backSplit = backImage&&"assets/subcategory/"+backImage.split('/').pop();
 
@@ -55,7 +35,7 @@ exports.editSubcategory= async (req, res) => {
         if (!findCat){
             fs.unlinkSync(frontSplit)
             fs.unlinkSync(backSplit)
-            return res.status(404).json({ message: 'Category not found !' });
+            return res.status(404).json({ message: 'Subcategory not found !' });
         }
 
 
@@ -63,7 +43,7 @@ exports.editSubcategory= async (req, res) => {
             $set:{...req.body, frontImage,backImage}
         })
 
-        if(frontImage&&backImage){
+        if(frontImage||backImage){
             const splitFront = "assets/subcategory/"+findCat.frontImage.split('/').pop();
             const splitBack = "assets/subcategory/"+findCat.backImage.split('/').pop();
             fs.unlinkSync(splitFront)
