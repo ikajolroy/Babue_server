@@ -16,4 +16,4 @@ const userSchema = new mongoose.Schema({
     },
 },{timestamps:true})
 
-module.exports = mongoose.model('admin', userSchema);
+module.exports = mongoose.model('Admin', userSchema);

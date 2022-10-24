@@ -1,8 +1,12 @@
 const mongoose = require('mongoose');
 
 const studySchema = new mongoose.Schema({
-    title:{ type: String, required: true, trim: true },
-    cover: { type: String, required: true},
+    name:{ type: String, required: true, trim: true },
+    description:{ type: String, trim: true ,default:""},
+    image:{ type: String },
+    images:{ type: Array,default:[]},
+    audio: { type: String},
+    poem:{type:Array,default:[]},
     subcategory: { type:mongoose.Schema.Types.ObjectId, required: true,ref:"subcategory" },
 },{timestamps:true})
 

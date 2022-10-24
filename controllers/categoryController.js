@@ -7,16 +7,22 @@ exports.addCategory= async (req, res) => {
 
 
     try {
-        const {title, name} = req.body;
+        const {title, name,position} = req.body;
         const cover =req.file&&req.protocol + '://' + req.get('host') + "/" + req.file.destination+"/"+req.file.filename
         const splitDir = cover&&"assets/category/"+cover.split('/').pop();
 
-        if ( !title|| !name){
+        if ( !title|| !name||!position){
             fs.unlinkSync(splitDir)
             return res.status(400).json({message: 'Please provide valid information !'});
         }
+        const findPosition =await CategoryModel.findOne({position})
 
-        await CategoryModel.create({title, name, cover,createdBy:req.admin._id});
+        if (findPosition){
+            fs.unlinkSync(splitDir)
+            return res.status(400).json({message: 'Position already exist, try another !'});
+        }
+
+        await CategoryModel.create({title, name, cover,position,createdBy:req.admin._id});
         res.status(200).json({message: 'Successfully created !'})
     }catch (error) {
         res.status(500).json({ message: error.message });
@@ -27,7 +33,7 @@ exports.addCategory= async (req, res) => {
 
 exports.getCategory= async (req, res) => {
     try {
-        const category = await CategoryModel.find({})
+        const category = await CategoryModel.find({}).sort({position:1})
         res.status(200).send(category);
     }catch (error) {
         res.status(500).json({ message: error.message });
