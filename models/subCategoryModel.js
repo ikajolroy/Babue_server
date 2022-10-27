@@ -19,6 +19,7 @@ const subCategoryModel = new mongoose.Schema({
             'food',
             'poem',
             "gallery",
+            "caseStudy",
             "slide",
             "cube",
             'poem',
