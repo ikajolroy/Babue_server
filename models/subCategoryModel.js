@@ -25,7 +25,7 @@ const subCategoryModel = new mongoose.Schema({
             'poem',
             "card",
             "creative",
-            "grab",
+            "mcq",
             "grid",
             "column"
         ]

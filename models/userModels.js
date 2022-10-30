@@ -11,6 +11,7 @@ const userSchema = new mongoose.Schema({
     dateOfBirth: { type: Date,required: true },
     gender: { type: String, enum: ['male', 'female', 'other'], required: true },
     guardian: { type: String, required: true },
+    level: { type:Number, default:1},
     studyClass: { type: Number, default: 0, trim: true },
     address: {
         division: { type: String, default: "", trim: true },

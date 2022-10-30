@@ -349,6 +349,7 @@ exports.getStudy = async (req, res) => {
 
     let limit = parseInt(req.body.limit || 20)
     let search = req.body.search || ''
+
     try {
         const total = await StudyModel.countDocuments();
         if (req.body.subcategory) {

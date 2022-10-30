@@ -125,3 +125,13 @@ exports.getSubCategoryFromId = async (req, res) => {
         res.status(404).send({message: error.message});
     }
 }
+
+//MCQ Examination Only Subcategory
+exports.getMCQOnlyCategory = async (req, res) => {
+    try {
+        const findSubcategory = await SubcategoryModel.find({layout:"mcq"})
+        res.status(200).send(findSubcategory);
+    }catch (error) {
+        res.status(404).send({message: error.message});
+    }
+}
