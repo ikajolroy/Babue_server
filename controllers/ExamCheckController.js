@@ -1,7 +1,6 @@
 const CheckExamModel = require("../models/ExamCheckModel")
 const fs = require("fs");
 const SubcategoryModel = require("../models/subCategoryModel");
-const StudyModel = require("../models/studyModel");
 
 //Add Check examination
 exports.addCheckExamination = async (req, res) => {
@@ -20,7 +19,6 @@ exports.addCheckExamination = async (req, res) => {
         return res.status(200).send({message: 'Successfully created !'})
 
     } catch (error) {
-        console.log(error)
         res.status(404).send({message: error.message});
     }
 }
@@ -34,7 +32,9 @@ exports.updateCheckExamination = async (req, res) => {
         let imageLocation = image && "assets/exam/"+image.split('/').pop()
         const findCheckExam = await CheckExamModel.findById(req.params.id)
         if (!findCheckExam) {
-            fs.unlinkSync(imageLocation)
+            if (image){
+                fs.unlinkSync(imageLocation)
+            }
             return res.status(404).send({message: 'Data not found !'})
         }
         //imageLocation
@@ -103,8 +103,8 @@ exports.getFromAdminCheckExamination = async (req, res) => {
 //Get MCQ by student level
 exports.getMCQByStudentLevel = async (req, res) => {
     try {
-        const findMCQByLevel = await  CheckExamModel.find({level: req.user.level});
-        res.status(200).send(findMCQByLevel);
+        const findRandomly  =await  CheckExamModel.aggregate([{ $match: { level:req.user.level } }, { $sample: { size: 5 } } ]).limit(10)
+        res.status(200).send(findRandomly);
     }catch (error) {
         res.status(404).send({message: error.message});
     }

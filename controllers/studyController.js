@@ -381,6 +381,24 @@ exports.getStudy = async (req, res) => {
     }
 }
 
+//Get Study for Image Link Copy
+exports.getStudyForImage = async (req, res) => {
+    try {
+
+        if (req.body.search&&req.body.search.trim()){
+            const study = await StudyModel.find({name: {$regex: new RegExp("^" + req.body.search + '.*', 'i')}})
+                .limit(20)
+            return  res.status(200).send(study)
+        }else {
+            res.status(404).send({message:"Type study name to search !"})
+        }
+
+    }catch (error){
+        res.status(404).send({message: error.message});
+    }
+}
+
+
 //Get Study For User of Subcategory
 exports.getUserStudy = async (req, res) => {
     try {

@@ -1,5 +1,5 @@
 const {guardOfAdmin, guardOfUser} = require("../helpers/authGuard");
-const {addStudy, updateStudy, getStudy, deleteStudy, getUserStudy} = require("../controllers/studyController");
+const {addStudy, updateStudy, getStudy, deleteStudy, getUserStudy, getStudyForImage} = require("../controllers/studyController");
 const {GlobalUpload} = require("../helpers/GlobalUpload");
 module.exports = Router = require('express').Router();
 
@@ -10,8 +10,10 @@ Router.route('/study/all')
 Router.route('/study/:id')
     .put(guardOfAdmin,GlobalUpload,updateStudy)
     .delete(guardOfAdmin,deleteStudy)
+Router.route('/study/image')
+    .post(guardOfAdmin,getStudyForImage)
 
-//User GET Premium and Free Membership all study
+//Get study for Copy Image Links
 Router.route('/study/:subcategory')
     .get(getUserStudy)
 
