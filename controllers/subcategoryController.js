@@ -130,7 +130,8 @@ exports.getSubCategoryFromId = async (req, res) => {
 exports.getMCQOnlyCategory = async (req, res) => {
     try {
         const findSubcategory = await SubcategoryModel.find({layout:"mcq"})
-        res.status(200).send(findSubcategory);
+        const findSubcategoryQuiz = await SubcategoryModel.find({layout:"quiz"})
+        res.status(200).send([...findSubcategory,...findSubcategoryQuiz]);
     }catch (error) {
         res.status(404).send({message: error.message});
     }

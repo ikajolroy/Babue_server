@@ -20,7 +20,7 @@ Router.route("/subcategory/:id")
 
 Router.route("/s/:subcategory")
     .get(getSubCategoryFromId) // cat id to Get child Subcategories
-Router.route("/exam/mcq")
+Router.route("/exam/mcq/subcategory")
     .get(guardOfAdmin,getMCQOnlyCategory) // Access from admin Examination pages
 
 

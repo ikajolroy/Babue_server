@@ -8,4 +8,4 @@ const CheckCorrectAnsSchema  = new mongoose.Schema({
     level: {type:Number, default:1},
 },{timestamps:true})
 
-module.exports = mongoose.model("ExamCorrectAns", CheckCorrectAnsSchema);
+module.exports = mongoose.model("Random", CheckCorrectAnsSchema);

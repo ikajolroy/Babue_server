@@ -1,5 +1,5 @@
 const userModels = require("../models/userModels")
-const fs = require("fs");
+// const fs = require("fs");
 
 //BD Phone number validator
 exports.validPhone = (phone) => {
@@ -16,38 +16,41 @@ exports.validateEmail = (email) => {
 };
 
 exports.signUpValidator = async (req, res, next) => {
-    const image =req.file&&req.protocol + '://' + req.get('host') + "/" + req.file.destination+"/"+req.file.filename
-    const splitDir = image&&"assets/user/"+image.split('/').pop();
+    // const image =req.file&&req.protocol + '://' + req.get('host') + "/" + req.file.destination+"/"+req.file.filename
+    // const splitDir = image&&"assets/user/"+image.split('/').pop();
     try {
-
-        const { name, email, password, phone, guardian, dateOfBirth, gender } = req.body;
-        if (!name || !email || !password || !phone || !guardian || !dateOfBirth || !gender ) {
-            fs.unlinkSync(splitDir)
-            return res.status(404).send({ message: "Please fill-up all fields !" });
+        // name, email,guardian, dateOfBirth, gender
+        const { password, phone,name } = req.body;
+        if (!name){
+            return res.status(404).send({ message:"Please enter a name !"})
         }
-
-        // Check Already Exists user
-        const user = await userModels.findOne({ phone })
-        const userEmail = await userModels.findOne({ email })
-        if (user || userEmail){
-            fs.unlinkSync(splitDir)
-            return res.status(400).send({ message: "You'r already registered please login !" });
-        }
-
-        // Email validator
-        if (!this.validateEmail(email.trim())){
-            fs.unlinkSync(splitDir)
-            return res.status(403).send({ message: "Please enter a valid email address !" });
-        }
+        // if (!name || !email || !password || !phone || !guardian || !dateOfBirth || !gender ) {
+        //     fs.unlinkSync(splitDir)
+        //     return res.status(404).send({ message: "Please fill-up all fields !" });
+        // }
+        //
+        // // Check Already Exists user
+        // const user = await userModels.findOne({ phone })
+        // const userEmail = await userModels.findOne({ email })
+        // if (user || userEmail){
+        //     fs.unlinkSync(splitDir)
+        //     return res.status(400).send({ message: "You'r already registered please login !" });
+        // }
+        //
+        // // Email validator
+        // if (!this.validateEmail(email.trim())){
+        //     fs.unlinkSync(splitDir)
+        //     return res.status(403).send({ message: "Please enter a valid email address !" });
+        // }
 
 
         // Phone Number Validation
         if (!this.validPhone(phone.toString())) {
-            fs.unlinkSync(splitDir)
+            // fs.unlinkSync(splitDir)
            return res.status(404).send({ message: "Please enter a valid phone number !" });
         }
         if(password.length<4){
-            fs.unlinkSync(splitDir)
+            // fs.unlinkSync(splitDir)
            return res.status(404).send({ message: "Password minimum 4 characters !" });
         }else {
             next()

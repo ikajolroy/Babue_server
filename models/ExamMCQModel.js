@@ -11,4 +11,4 @@ const CheckExamSchema  = new mongoose.Schema({
     level: {type:Number, default:1},
 },{timestamps:true})
 
-module.exports = mongoose.model("ExamChecks", CheckExamSchema);
+module.exports = mongoose.model("Quiz", CheckExamSchema);

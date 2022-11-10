@@ -1,23 +1,30 @@
 module.exports = Router = require('express').Router();
 const ExamImageUpload = require('../helpers/ExamImageUpload')
 const {guardOfAdmin, guardOfUser} = require("../helpers/authGuard");
-const {addCheckExamination, updateCheckExamination, getFromAdminCheckExamination, getMCQByStudentLevel} = require("../controllers/ExamCheckController");
-const {addCorrectExamination, getFromAdminCorrectExamination} = require("../controllers/ExamCorrectAnsController");
+const {addCheckExamination, updateCheckExamination, getMCQByStudentLevel,
+    deleteMcqFromAdmin
+} = require("../controllers/ExamMcqController");
+const {addCorrectExamination, getFromAdminCorrectExamination, updateCorrectExamination, deleteExamination,
+    getRandomByStudentLevel
+} = require("../controllers/ExamRandomWordController");
 
 //MCQ Examination Router
-Router.route("/exam/check")  //The features of Admin operations
+Router.route("/exam/mcq")  //The features of Admin operations
     .post(guardOfAdmin,ExamImageUpload,addCheckExamination)
     .get(guardOfUser, getMCQByStudentLevel)
-Router.post("/exam/check/filter",guardOfAdmin,getFromAdminCorrectExamination )
-Router.route("/exam/check/:id")
+Router.route("/exam/mcq/:id")
     .put(guardOfAdmin,ExamImageUpload,updateCheckExamination)
+    .delete(guardOfAdmin,deleteMcqFromAdmin)
 
 
+//Global Get data with Filter
+Router.post("/exam/filter",guardOfAdmin,getFromAdminCorrectExamination )
 
 
-//correct  answers examination
-Router.route("/exam/correct")  //The features of Admin operations
+//Random MCQ examination
+Router.route("/exam/random")  //The features of Admin operations
     .post(guardOfAdmin,ExamImageUpload,addCorrectExamination)
-    .get(guardOfAdmin,getFromAdminCheckExamination) //admin from all
-Router.route("/exam/correct/:id")
-    .put(guardOfAdmin,ExamImageUpload,updateCheckExamination)
+    .get(guardOfUser,getRandomByStudentLevel) //get only user random exam
+Router.route("/exam/random/:id")
+    .put(guardOfAdmin,ExamImageUpload,updateCorrectExamination)
+    .delete(guardOfAdmin,deleteExamination)

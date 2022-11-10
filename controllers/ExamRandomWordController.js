@@ -1,10 +1,11 @@
-const ExamCorrectAnsModel = require("../models/ExamCorrectAnsModel")
+const ExamCorrectAnsModel = require("../models/ExamQuizModel")
 const fs = require("fs");
-const CheckExamModel = require("../models/ExamCheckModel")
+const CheckExamModel = require("../models/ExamMCQModel")
 const SubcategoryModel = require("../models/subCategoryModel")
 
 //Add Check examination
 exports.addCorrectExamination = async (req, res) => {
+
     try {
         const {name, option,subcategory,level} = req.body;
         const image = req.files.image && req.protocol + '://' + req.get('host') + "/" + req.files.image[0].destination + "/" + req.files.image[0].filename;
@@ -28,6 +29,7 @@ exports.addCorrectExamination = async (req, res) => {
 exports.updateCorrectExamination = async (req, res) => {
     try {
         const {name, option, subcategory,level} = req.body;
+
         const image = req.files.image && req.protocol + '://' + req.get('host') + "/" + req.files.image[0].destination + "/" + req.files.image[0].filename;
         //File Location
         let imageLocation = image && "assets/exam/"+image.split('/').pop()
@@ -71,14 +73,14 @@ exports.getFromAdminCorrectExamination = async (req, res) => {
                     path:"subcategory"
                 })
                 .limit(limit)
-            const findBySubcategoryCheck = CheckExamModel.find({subcategory,level})
+            const findBySubcategoryCheck =await CheckExamModel.find({subcategory,level})
                 .populate({
                     model: SubcategoryModel,
                     path:"subcategory"
                 })
                 .limit(limit)
-            const adjustAll = findBySubLevelCorrect.concat(findBySubcategoryCheck).sort({createdAt: -1})
-            res.status(200).send({total,examination: adjustAll});
+            const adjustAll = [...findBySubcategoryCheck,...findBySubLevelCorrect]
+           return  res.status(200).send({total,examination: adjustAll});
         }
         if (subcategory){
             const findBySubcategoryCorrect =await ExamCorrectAnsModel.find({subcategory})
@@ -87,14 +89,14 @@ exports.getFromAdminCorrectExamination = async (req, res) => {
                     path:"subcategory"
                 })
                 .limit(limit)
-            const findBySubcategoryCheck = CheckExamModel.find({subcategory})
+            const findBySubcategoryCheck =await CheckExamModel.find({subcategory})
                 .populate({
                     model: SubcategoryModel,
                     path:"subcategory"
                 })
                 .limit(limit)
-            const adjustAll = findBySubcategoryCorrect.concat(findBySubcategoryCheck).sort({createdAt: -1})
-            res.status(200).send({total,examination: adjustAll});
+            const adjustAll = [...findBySubcategoryCheck,...findBySubcategoryCorrect]
+           return  res.status(200).send({total,examination: adjustAll});
         }
         if (level){
             const findByLevelCorrect =await ExamCorrectAnsModel.find({level})
@@ -103,14 +105,14 @@ exports.getFromAdminCorrectExamination = async (req, res) => {
                     path:"subcategory"
                 })
                 .limit(limit)
-            const findBySubcategoryCheck = CheckExamModel.find({level})
+            const findBySubcategoryCheck =await CheckExamModel.find({level})
                 .populate({
                     model: SubcategoryModel,
                     path:"subcategory"
                 })
                 .limit(limit)
-            const adjustAll = findByLevelCorrect.concat(findBySubcategoryCheck).sort({createdAt: -1})
-            res.status(200).send({total,examination: adjustAll});
+            const adjustAll =[...findByLevelCorrect, ...findBySubcategoryCheck]
+           return  res.status(200).send({total,examination: adjustAll});
         }
 
         const search = req.body.search|| ''
@@ -118,18 +120,43 @@ exports.getFromAdminCorrectExamination = async (req, res) => {
             .populate({
                 model: SubcategoryModel,
                 path:"subcategory"
-            })
+            }).sort({createdAt: -1})
             .limit(limit)
         const checkExam = await CheckExamModel.find({name: {$regex: new RegExp("^" + search + '.*', 'i')}})
             .populate({
                 model: SubcategoryModel,
                 path:"subcategory"
-            })
+            }).sort({createdAt: -1})
             .limit(limit)
         let allExams = [...correctAnsExam,...checkExam]
 
         res.status(200).send({total, examination:allExams});
 
+    }catch (error) {
+        res.status(404).send({message: error.message});
+    }
+}
+//Get MCQ by student Randomly by level
+exports.getRandomByStudentLevel = async (req, res) => {
+    try {
+        const findRandomly  =await  ExamCorrectAnsModel.aggregate([{ $match: { level:req.user.level } }, { $sample: { size: 5 } } ]).limit(10)
+        res.status(200).send(findRandomly);
+    }catch (error) {
+        res.status(404).send({message: error.message});
+    }
+}
+
+//Delete Random Examination
+exports.deleteExamination = async (req, res) => {
+    try {
+        const findData = await ExamCorrectAnsModel.findOne({_id: req.params.id})
+        if (!findData){
+          return  res.status(404).send({message:"Data not found !"})
+        }
+        const oldImageLocation = "assets/exam/" + findData.image.split('/').pop();
+        await ExamCorrectAnsModel.findByIdAndDelete(req.params.id)
+        fs.unlinkSync(oldImageLocation)
+        return res.status(200).send({message:"Deleted successfully !"})
     }catch (error) {
         res.status(404).send({message: error.message});
     }

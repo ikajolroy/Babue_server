@@ -3,7 +3,6 @@ const StudyModel = require('../models/studyModel');
 const fs = require("fs");
 
 exports.addStudy = async (req, res) => {
-    if (!req.files) return res.status(404).send({message: "Invalid your information !"});
 
 
     const image = req.files.image && req.protocol + '://' + req.get('host') + "/" + req.files.image[0].destination + "/" + req.files.image[0].filename;
@@ -19,10 +18,8 @@ exports.addStudy = async (req, res) => {
     });
 
 
-
     try {
-        const {name, subcategory} = req.body;
-        const poem = req.body.poem && req.body.poem.split(',')
+        const {name, subcategory, poem} = req.body;
 
         if (!subcategory || !name) {
             if (images) {
@@ -44,7 +41,6 @@ exports.addStudy = async (req, res) => {
             return res.status(404).send({message: "Please add subcategory and name !"})
         }
 
-        // console.log(imagesSplit)
 
         const findSubcategory = await SubcategoryModel.findById(subcategory)
 
@@ -68,7 +64,7 @@ exports.addStudy = async (req, res) => {
             return res.status(404).send({message: "Subcategory not found !"})
         }
         if (findSubcategory.layout === "poem") {
-            if (!poem) {
+            if (!poem ) {
                 if (images) {
                     imagesSplit.forEach(path => {
                         try {
@@ -88,6 +84,9 @@ exports.addStudy = async (req, res) => {
                 return res.status(404).send({message: "Please add the poem !"})
             }
             await StudyModel.create({audio, name, subcategory, poem})
+            if (image) {
+                fs.unlinkSync(imageSplit)
+            }
             if (images) {
                 imagesSplit.forEach(path => {
                     try {
@@ -97,9 +96,6 @@ exports.addStudy = async (req, res) => {
                         res.status(404).send({message: "Delete failed loaded images !"})
                     }
                 });
-            }
-            if (image) {
-                fs.unlinkSync(imageSplit)
             }
         } else {
             if (poem) {
@@ -120,8 +116,9 @@ exports.addStudy = async (req, res) => {
                     fs.unlinkSync(audioSplit)
                 }
                 return res.status(404).send({message: "Poem not this layout !"})
+            } else {
+                await StudyModel.create({...req.body, audio, image, images})
             }
-            await StudyModel.create({...req.body, audio, image, images})
         }
         res.send({message: "Successfully added !"})
 
@@ -256,7 +253,6 @@ exports.updateStudy = async (req, res) => {
                 fs.unlinkSync(prevAudio)
             }
         } else {
-
             if (poem && poem.length > 0) {
                 if (images) {
                     imagesSplit.forEach(path => {
@@ -356,7 +352,7 @@ exports.getStudy = async (req, res) => {
             const subcategory = await StudyModel.find({subcategory: req.body.subcategory})
                 .populate({
                     model: SubcategoryModel,
-                    path:"subcategory"
+                    path: "subcategory"
                 })
                 .limit(limit).sort({createdAt: 1})
             return res.status(200).send({
@@ -365,35 +361,18 @@ exports.getStudy = async (req, res) => {
             })
         }
 
-            const study = await StudyModel.find({name: {$regex: new RegExp("^" + search + '.*', 'i')}})
-                .populate({
-                    model: SubcategoryModel,
-                    path: 'subcategory'
-                }).limit(limit)
-                .sort(search ? null : {createdAt: -1})
-           return  res.status(200).send({
-                total,
-                study
-            })
+        const study = await StudyModel.find({name: {$regex: new RegExp("^" + search + '.*', 'i')}})
+            .populate({
+                model: SubcategoryModel,
+                path: 'subcategory'
+            }).limit(limit)
+            .sort(search ? null : {createdAt: -1})
+        return res.status(200).send({
+            total,
+            study
+        })
 
     } catch (error) {
-        res.status(404).send({message: error.message});
-    }
-}
-
-//Get Study for Image Link Copy
-exports.getStudyForImage = async (req, res) => {
-    try {
-
-        if (req.body.search&&req.body.search.trim()){
-            const study = await StudyModel.find({name: {$regex: new RegExp("^" + req.body.search + '.*', 'i')}})
-                .limit(20)
-            return  res.status(200).send(study)
-        }else {
-            res.status(404).send({message:"Type study name to search !"})
-        }
-
-    }catch (error){
         res.status(404).send({message: error.message});
     }
 }
