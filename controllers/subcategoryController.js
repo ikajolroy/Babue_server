@@ -136,3 +136,19 @@ exports.getMCQOnlyCategory = async (req, res) => {
         res.status(404).send({message: error.message});
     }
 }
+
+
+
+//Search Subcategory
+exports.searchSubcategory = async (req, res) => {
+    let search = req.body.search || ''
+    try {
+        const findSubcategory = await SubcategoryModel.find({name: {$regex: new RegExp("^" + search + '.*', 'i')}})
+            .limit(20)
+
+        res.status(200).send(findSubcategory);
+    }
+    catch (error) {
+        res.status(500).send({message:error.message})
+    }
+}

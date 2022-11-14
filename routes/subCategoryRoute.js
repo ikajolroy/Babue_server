@@ -1,7 +1,7 @@
 const {guardOfAdmin} = require("../helpers/authGuard");
 const {addSubcategory, getSubcategory, deleteSubcategory,
     editSubcategory, getSubcategoryInUser,
-    getSubCategoryFromId, getMCQOnlyCategory
+    getSubCategoryFromId, getMCQOnlyCategory, searchSubcategory
 } = require("../controllers/subcategoryController");
 module.exports = Router = require('express').Router();
 const multer = require('multer');
@@ -23,6 +23,7 @@ Router.route("/s/:subcategory")
 Router.route("/exam/mcq/subcategory")
     .get(guardOfAdmin,getMCQOnlyCategory) // Access from admin Examination pages
 
+Router.post("/search/subcategory", searchSubcategory)
 
 
 
